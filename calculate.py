@@ -1,157 +1,99 @@
-import matplotlib.pyplot as plt
+from dataclasses import dataclass
+from typing import List
+import numpy as np
 
 
-def sign(x):
-    return -1 if x < 0 else (1 if x > 0 else (0 if x == 0 else None))
+@dataclass
+class Point:
+    x: float
+    y: float
 
 
-# def run(a, b, h0, n):
-#     points = []
-#     t0 = h0 / a + h0
-#     T0 = 2 * h0 + h0 / a + h0 * a
-#     h1 = (T0 * n + (n - 1) * T0 + t0 + h0) / 2
-#
-#     x0 = 0
-#     σ = 0.6
-#     # -σ < t < 0
-#     points.append((-σ, -σ))
-#     points.append((h0, h0))
-#     k = 0
-#     while True:
-#         # // h0 < t < t0 + h0
-#         if h0 + t0 + k * T0 > h1:
-#             x0 = h0 - a * (h1 - h0 - k * T0)
-#             points.append((h1, h0 - a * (h1 - h0 - k * T0)))
-#             break
-#
-#         points.append((h0 + t0 + k * T0, h0 - a * t0))
-#
-#         # // t0 + h0 < t < T0 + h0
-#         if h0 + T0 + k * T0 > h1:
-#             x0 = (h1 - k * T0) - T0
-#             points.append((h1, (h1 - k * T0) - T0))
-#             break
-#
-#         points.append((h0 + T0 + k * T0, h0))
-#         k += 1
-#
-#     t = h1
-#     u = x0
-#     k = 0
-#     has_null = False
-#     while t < 3 * h1 or not has_null and k < 1000:
-#         inerval0 = get_interval(points, t - h0)
-#         inerval1 = get_interval(points, t - h1)
-#
-#         offset = min(inerval0[0], inerval1[0])
-#
-#         if inerval0[1]:
-#             if inerval1[1]:
-#                 u += -(a + b) * offset
-#             else:
-#                 u += -a * offset
-#         else:
-#             if inerval1[1]:
-#                 u += (1 - b) * offset
-#             else:
-#                 u += offset
-#         t += offset
-#         if u >= 0:
-#             has_null = True
-#         points.append((t, u))
-#         k += 1
-#     return points
-
-def run(a, b, n):
-    points = []
-    t0 = 1 / a + 1
-    T0 = 2 + 1 / a + a
-    h = (n - 1) * T0 + t0 + 1
-
-    points.append((-0.6, -0.6))
-    points.append((1, 1))
-    k = -1
-    while True:
-        k += 1
-        # // 1 < t < t0 + 1
-        if 1 + t0 > h - k * T0:
-            x0 = 1 - a * (h - k * T0 - 1)
-            points.append((h, 1 - a * (h - k * T0 - 1)))
-            break
-
-        points.append((1 + t0 + k * T0, 1 - a * t0))  # Нижние
-
-        # // t0 + 1 < t < T0 + 1
-        if 1 + T0 > h - k * T0:
-            x0 = h - k * T0 - T0
-            points.append((h, h - k * T0 - T0))
-            break
-
-        points.append((1 + T0 + k * T0, 1))  # верхние
-
-    t = h
-    u = x0
-    k = 0
-    has_null = False
-    while t < 3 * h or not has_null and k < 1000:
-        interval_0 = get_interval(points, t - 1)
-        interval_1 = get_interval(points, t - h)
-
-        offset = min(interval_0[0], interval_1[0])
-
-        if interval_0[1]:
-            if interval_1[1]:
-                u += -(a + b) * offset
-            else:
-                u += -a * offset
-        else:
-            if interval_1[1]:
-                u += (1 - b) * offset
-            else:
-                u += offset
-        t += offset
-        if u >= 0:
-            has_null = True
-        points.append((t, u))
-        k += 1
-    return points
+def R_x(x, a):
+    return -a if x else 1
 
 
-def get_interval(points, t):
-    it = 0
+def H_x(x, b):
+    return -b if x else 0
 
-    for idx, p in enumerate(points):
-        if t < p[0]:
-            it = idx
-            break
 
-    start_it = it - 1
+class RelayEquation:
+    def __init__(self, a, b, n):
+        self.n = n
+        self.b = b
+        self.a = a
+        self.points: List[Point] = []
+        self.t0 = 1 / a + 1
+        self.T0 = 2 + 1 / a + a
+        self.h = (self.n - 1) * self.T0 + self.t0 + 1
 
-    if sign(points[it][1]) != sign(points[start_it][1]):
-        w = points[it][0] - points[start_it][0]
-        h = points[it][1] - points[start_it][1]
+    def run(self):
+        self.points.append(Point(-0.6, -0.6))
+        self.points.append(Point(1, 1))
+        k = 0
+        while True:
+            if 1 + self.t0 > self.h - k * self.T0:
+                x0 = 1 - self.a * (self.h - k * self.T0 - 1)
+                self.points.append(Point(self.h, 1 - self.a * (self.h - k * self.T0 - 1)))
+                break
 
-        x = points[start_it][0] - points[start_it][1] * w / h
+            self.points.append(Point(1 + self.t0 + k * self.T0, 1 - self.a * self.t0))  # low
 
-        if t + 0.0001 < x:
-            return x - t, points[start_it][1] > 0
+            if 1 + self.T0 > self.h - k * self.T0:
+                x0 = self.h - k * self.T0 - self.T0
+                self.points.append(Point(self.h, self.h - k * self.T0 - self.T0))
+                break
 
-        start_it += 1
+            self.points.append(Point(1 + self.T0 + k * self.T0, 1))  # high
+            k += 1
 
-    while it < len(points) - 2 and sign(points[it][1]) == sign(points[start_it][1]):
-        it += 1
+        t = self.h
+        u = x0
+        k = 0
+        while (t < 3 * self.h or not u >= 0) and k < 100:
+            r_offset, is_x_positive = self._get_offset(t - 1)
+            r_x = R_x(is_x_positive, self.a)
+            h_offset, is_x_positive = self._get_offset(t - self.h)
+            h_x = H_x(is_x_positive, self.b)
 
-    if sign(points[it][1]) != sign(points[start_it][1]):
-        prev_it = it - 1
+            offset = min(r_offset, h_offset)
+            u += (r_x + h_x) * offset
+            t += offset
+            self.points.append(Point(t, u))
+            k += 1
+        return self.points
 
-        w = points[it][0] - points[prev_it][0]
-        h = points[it][1] - points[prev_it][1]
+    def _get_offset(self, t):
+        current = 0
+        for idx, p in enumerate(self.points):
+            if t < p.x:
+                current = idx
+                break
+        left = current - 1
+        if self._changes_zero(current, left):
+            x = self._get_x(left, current)
+            if t < x:
+                return x - t, self.points[left].y > 0
+            left += 1
 
-        x = points[prev_it][0] - points[prev_it][1] * w / h
+        while current < len(self.points) - 2 and not self._changes_zero(left, current):
+            current += 1
 
-        return x - t, points[prev_it][1] > 0
+        if self._changes_zero(current, left):
+            left = current - 1
+            x = self._get_x(left, current)
+            return x - t, self.points[left].y > 0
+        return self.points[current].x - t, self.points[current].y > 0
 
-    return points[it][0] - t, points[it][1] > 0
+    def _get_x(self, left, current):
+        w, h = self.points[current].x - self.points[left].x, self.points[current].y - self.points[left].y
+        return self.points[left].x - self.points[left].y * w / h
+
+    def _changes_zero(self, first, second):
+        return np.sign(self.points[first].y) != np.sign(self.points[second].y)
 
 
 
+if __name__ == "__main__":
+    relay = RelayEquation(2, 2, 2)
+    relay.run()

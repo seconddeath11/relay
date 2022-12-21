@@ -1,7 +1,7 @@
 import tkinter as tk
 import matplotlib
 
-from calculate import run
+from calculate import RelayEquation
 
 matplotlib.use('TkAgg')
 
@@ -15,12 +15,13 @@ from matplotlib.backends.backend_tkagg import (
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
-        points = run(2, 2, 2)
+        relay = RelayEquation(2, 2, 2)
+        points = relay.run()
         self.x = []
         self.y = []
         for point in points:
-            self.x.append(point[0])
-            self.y.append(point[1])
+            self.x.append(point.x)
+            self.y.append(point.y)
         self.title('Relay')
 
         figure = Figure(figsize=(15, 5), dpi=100)
@@ -77,12 +78,13 @@ class App(tk.Tk):
         a = int(self.a_entry.get())
         b = int(self.b_entry.get())
         n = int(self.n_entry.get())
-        points = run(a, b, n)
+        relay = RelayEquation(a, b, n)
+        points = relay.run()
         self.x = []
         self.y = []
         for point in points:
-            self.x.append(point[0])
-            self.y.append(point[1])
+            self.x.append(point.x)
+            self.y.append(point.y)
         self.replot()
 
     def replot(self):
