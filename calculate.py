@@ -66,48 +66,46 @@ def run(a, b, n):
     points = []
     t0 = 1 / a + 1
     T0 = 2 + 1 / a + a
-    h = (T0 * n + (n - 1) * T0 + t0 + 1) / 2
+    h = (n - 1) * T0 + t0 + 1
 
-    # -σ < t < 0
     points.append((-0.6, -0.6))
     points.append((1, 1))
     k = -1
     while True:
         k += 1
         # // 1 < t < t0 + 1
-        t = h - k * T0
-        if 1 + t0 > t:
-            x0 = 1 - a * (t - 1)
-            points.append((h, 1 - a * (t - 1)))
+        if 1 + t0 > h - k * T0:
+            x0 = 1 - a * (h - k * T0 - 1)
+            points.append((h, 1 - a * (h - k * T0 - 1)))
             break
 
-        points.append((1 + t0 + k * T0, 1 - a * t0))
+        points.append((1 + t0 + k * T0, 1 - a * t0))  # Нижние
 
         # // t0 + 1 < t < T0 + 1
-        if 1 + T0 > t:
-            x0 = t - T0
-            points.append((h, t - T0))
+        if 1 + T0 > h - k * T0:
+            x0 = h - k * T0 - T0
+            points.append((h, h - k * T0 - T0))
             break
 
-        points.append((1 + T0 + k * T0, 1))
+        points.append((1 + T0 + k * T0, 1))  # верхние
 
     t = h
     u = x0
     k = 0
     has_null = False
     while t < 3 * h or not has_null and k < 1000:
-        inerval0 = get_interval(points, t - 1)
-        inerval1 = get_interval(points, t - h)
+        interval_0 = get_interval(points, t - 1)
+        interval_1 = get_interval(points, t - h)
 
-        offset = min(inerval0[0], inerval1[0])
+        offset = min(interval_0[0], interval_1[0])
 
-        if inerval0[1]:
-            if inerval1[1]:
+        if interval_0[1]:
+            if interval_1[1]:
                 u += -(a + b) * offset
             else:
                 u += -a * offset
         else:
-            if inerval1[1]:
+            if interval_1[1]:
                 u += (1 - b) * offset
             else:
                 u += offset
@@ -136,7 +134,7 @@ def get_interval(points, t):
         x = points[start_it][0] - points[start_it][1] * w / h
 
         if t + 0.0001 < x:
-            return x - t, start_it
+            return x - t, points[start_it][1] > 0
 
         start_it += 1
 

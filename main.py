@@ -18,7 +18,7 @@ class App(tk.Tk):
         points = run(2, 2, 2)
         self.x = []
         self.y = []
-        for point in points[:40]:
+        for point in points:
             self.x.append(point[0])
             self.y.append(point[1])
         self.title('Relay')
@@ -37,31 +37,33 @@ class App(tk.Tk):
         input_frame = tk.Frame(self)
         input_frame.grid(row=1, column=2)
         a_text = tk.StringVar()
-        a_text.set("Enter a")
+        a_text.set("a0")
         a_label = tk.Label(input_frame, textvariable=a_text)
         a_label.grid(row=1, column=2)
 
         a_value = tk.StringVar()
         a_value.set("2")
-        self.a_entry = tk.Entry(input_frame, textvariable=a_value)
+        self.a_entry = tk.Entry(input_frame, textvariable=a_value, justify="center")
         self.a_entry.grid(row=2, column=2)
 
-        label2Text = tk.StringVar()
-        label2Text.set("Enter b")
-        label2Dir = tk.Label(input_frame, textvariable=label2Text)
-        label2Dir.grid(row=3, column=2)
+        b_text = tk.StringVar()
+        b_text.set("b0")
+        b_label = tk.Label(input_frame, textvariable=b_text)
+        b_label.grid(row=3, column=2)
 
-        directory2 = tk.StringVar(None)
-        self.b_entry = tk.Entry(input_frame, textvariable=directory2)
+        b_value = tk.StringVar(None)
+        b_value.set("2")
+        self.b_entry = tk.Entry(input_frame, textvariable=b_value, justify="center")
         self.b_entry.grid(row=4, column=2)
 
-        label3Text = tk.StringVar()
-        label3Text.set("Enter n")
-        label3Dir = tk.Label(input_frame, textvariable=label3Text)
-        label3Dir.grid(row=5, column=2)
+        n_text = tk.StringVar()
+        n_text.set("n")
+        n_label = tk.Label(input_frame, textvariable=n_text)
+        n_label.grid(row=5, column=2)
 
-        directory3 = tk.StringVar(None)
-        self.n_entry = tk.Entry(input_frame, textvariable=directory3)
+        n_value = tk.StringVar(None)
+        n_value.set("2")
+        self.n_entry = tk.Entry(input_frame, textvariable=n_value, justify="center")
         self.n_entry.grid(row=6, column=2)
 
         plot_button = tk.Button(master=input_frame,
@@ -78,7 +80,7 @@ class App(tk.Tk):
         points = run(a, b, n)
         self.x = []
         self.y = []
-        for point in points[:40]:
+        for point in points:
             self.x.append(point[0])
             self.y.append(point[1])
         self.replot()
